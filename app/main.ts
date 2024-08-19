@@ -16,6 +16,16 @@ function matchPattern(inputLine: string, pattern: string): boolean {
       }
     }
     return found;
+  }else if(pattern == "\\w"){
+    let found = false;
+    for(let i=0;i<inputLine.length;i++){
+      let ascii = inputLine.charCodeAt(i);
+      if((ascii >= 48 && ascii <=59)||(ascii>=65&&ascii<=90)||(ascii>=97&&ascii<=122)||ascii==95){
+        found = true;
+        break;
+      }
+    }
+    return found;
   }
   else if (pattern.length === 1) {
     return inputLine.includes(pattern);
