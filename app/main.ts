@@ -27,6 +27,18 @@ function matchPattern(inputLine: string, pattern: string): boolean {
     }
     return found;
   }
+  else if(pattern[0]=="[" && pattern[pattern.length-1]=="]" &&  pattern[1]=="^"){
+    let values = new Map;
+    for(let i=2;i<pattern.length-1;i++){
+      values.set(pattern[i],i);
+    }
+    for(let x=0;x<inputLine.length;x++){
+      if(values.has(inputLine[x])){
+        return false;
+      }
+    }
+    return true;
+  }
   else if(pattern[0]=="[" && pattern[pattern.length-1]=="]"){
     let values = new Map;
     for(let i=1;i<pattern.length-1;i++){
