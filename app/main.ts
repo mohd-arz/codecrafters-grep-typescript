@@ -84,19 +84,18 @@ function matchPattern(inputLine: string, pattern: string): boolean {
         compare.push(pattern[i]);
       }
     }
-    // console.log('pattern ',compare)
     let compareCount = 0;
     for(let i=0;i<inputLine.length;i++){
-      console.log('comparing against ',compare[compareCount],inputLine[i])
+      // console.log('comparing ',compare[compareCount],' = ',inputLine[i])
       if(compareCount == compare.length){
-        return true;
+        break;
       }
       if(compare[compareCount]=='\\w'){
         const ascii = inputLine.charCodeAt(i);
         if(getW(ascii)){
           compareCount++;
         }else{
-          i-=1;
+          if('\\w'!=compare[0])i-=1;
           compareCount = 0;
           continue
         }
@@ -105,6 +104,7 @@ function matchPattern(inputLine: string, pattern: string): boolean {
         if(getD(ascii)){
           compareCount++;
         }else{
+          if('\\d'!=compare[0])i-=1;
           compareCount = 0;
           continue
         }
