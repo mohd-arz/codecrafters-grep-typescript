@@ -79,8 +79,19 @@ function matchPattern(inputLine: string, pattern: string): boolean {
       compare.push(pattern[i]);
     }
     for (let i = 0; i < compare.length; i++) {
-
       if (inputLine[i] != compare[i]) {
+        return false;
+      }
+    }
+    return true;
+  } else if (pattern.length > 1 && pattern[pattern.length - 1] == "$") {
+    const compare = [];
+    for (let i = pattern.length - 2; i >= 0; i--) {
+      compare.push(pattern[i]);
+    }
+
+    for (let i = 0; i < compare.length; i++) {
+      if (inputLine[inputLine.length - (i + 1)] != compare[i]) {
         return false;
       }
     }
