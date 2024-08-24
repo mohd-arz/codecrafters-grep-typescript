@@ -111,35 +111,48 @@ function matchPattern(inputLine: string, pattern: string): boolean {
         compare.push(pattern[i]);
       }
     }
+    console.log(compare);
     let compareCount = 0;
-    for (let i = 0; i < inputLine.length; i++) {
-      // console.log('comparing ',compare[compareCount],' = ',inputLine[i])
+    let i = 0;
+    let isVisited = true;
+    let loop = 0;
+    while (i <= inputLine.length - 1) {
+      console.log("comparing ", compare[compareCount], "=", inputLine[i]);
+
       if (compareCount == compare.length) {
         break;
       }
-      if (compare[compareCount] == "\\w") {
+      if (compare[compareCount] == "+") {
+        if (inputLine[i - 1] != inputLine[i]) {
+          compareCount++;
+          continue;
+        }
+      } else if (compare[compareCount] == "\\w") {
         const ascii = inputLine.charCodeAt(i);
         if (getW(ascii)) {
           compareCount++;
         } else {
-          if ("\\w" != compare[0]) i -= 1;
+          isVisited = !isVisited;
           compareCount = 0;
-          continue;
         }
       } else if (compare[compareCount] == "\\d") {
         const ascii = inputLine.charCodeAt(i);
         if (getD(ascii)) {
           compareCount++;
         } else {
-          if ("\\d" != compare[0]) i -= 1;
+          isVisited = !isVisited;
           compareCount = 0;
-          continue;
         }
       } else if (inputLine[i] == compare[compareCount]) {
         compareCount++;
       } else {
+        isVisited = !isVisited;
         compareCount = 0;
       }
+      if (isVisited) {
+        i++;
+      }
+      loop++;
     }
     if (compareCount == compare.length) return true;
     return false;
