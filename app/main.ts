@@ -128,7 +128,11 @@ function matchPattern(inputLine: string, pattern: string): boolean {
         compare.splice(compareCount + 1, 1);
         isFlag = true;
       }
-      if (compare[compareCount] == "+") {
+      if (compare[compareCount] == ".") {
+        compareCount++;
+        i++;
+        continue;
+      } else if (compare[compareCount] == "+") {
         if (inputLine[i - 1] != inputLine[i]) {
           compareCount++;
           continue;
