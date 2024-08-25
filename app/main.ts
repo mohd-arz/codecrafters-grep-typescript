@@ -115,12 +115,18 @@ function matchPattern(inputLine: string, pattern: string): boolean {
     let compareCount = 0;
     let i = 0;
     let isVisited = true;
+    let isFlag = false;
     let loop = 0;
-    while (i <= inputLine.length - 1) {
+    while (i <= inputLine.length) {
+      isFlag = false;
       console.log("comparing ", compare[compareCount], "=", inputLine[i]);
 
       if (compareCount == compare.length) {
         break;
+      }
+      if (compare[compareCount + 1] == "?") {
+        compare.splice(compareCount + 1, 1);
+        isFlag = true;
       }
       if (compare[compareCount] == "+") {
         if (inputLine[i - 1] != inputLine[i]) {
@@ -146,8 +152,17 @@ function matchPattern(inputLine: string, pattern: string): boolean {
       } else if (inputLine[i] == compare[compareCount]) {
         compareCount++;
       } else {
-        isVisited = !isVisited;
-        compareCount = 0;
+        if (isFlag) {
+          compareCount++;
+          if (inputLine[i] == compare[compareCount]) {
+            compareCount++;
+          } else {
+            compareCount = 0;
+          }
+        } else {
+          isVisited = !isVisited;
+          compareCount = 0;
+        }
       }
       if (isVisited) {
         i++;
