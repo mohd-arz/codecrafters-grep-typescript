@@ -1,3 +1,5 @@
+import { log } from "console";
+
 export {};
 
 const args = process.argv;
@@ -21,6 +23,93 @@ function getD(ascii: number): boolean {
   if (ascii >= 48 && ascii <= 59) {
     return true;
   }
+  return false;
+}
+
+function getCompareArr(pattern: string): string[] {
+  let compare = [];
+  for (let i = 0; i < pattern.length; i++) {
+    if (pattern[i] == "\\") {
+      if (pattern[i + 1] == "d") {
+        compare.push("\\d");
+      } else if (pattern[i + 1] == "w") {
+        compare.push("\\w");
+      }
+      i += 1;
+      continue;
+    } else {
+      compare.push(pattern[i]);
+    }
+  }
+  return compare;
+}
+
+function match(compare: string[], inputLine: string) {
+  let compareCount = 0;
+  let i = 0;
+  let isVisited = true;
+  let isFlag = false;
+  let loop = 0;
+  let max = Math.max(compare.length, inputLine.length);
+  while (i <= max - 1) {
+    isFlag = false;
+    console.log("comparing ", compare[compareCount], "=", inputLine[i]);
+
+    if (compareCount == compare.length) {
+      break;
+    }
+    if (compare[compareCount + 1] == "?") {
+      compare.splice(compareCount + 1, 1);
+      isFlag = true;
+    }
+    if (compare[compareCount] == ".") {
+      compareCount++;
+      i++;
+      continue;
+    } else if (compare[compareCount] == "+") {
+      console.log("came in", compare[compareCount], compareCount);
+
+      if (inputLine[i - 1] != inputLine[i]) {
+        compareCount++;
+        continue;
+      }
+    } else if (compare[compareCount] == "\\w") {
+      const ascii = inputLine.charCodeAt(i);
+      if (getW(ascii)) {
+        compareCount++;
+      } else {
+        isVisited = !isVisited;
+        compareCount = 0;
+      }
+    } else if (compare[compareCount] == "\\d") {
+      const ascii = inputLine.charCodeAt(i);
+      if (getD(ascii)) {
+        compareCount++;
+      } else {
+        isVisited = !isVisited;
+        compareCount = 0;
+      }
+    } else if (inputLine[i] == compare[compareCount]) {
+      compareCount++;
+    } else {
+      if (isFlag) {
+        compareCount++;
+        if (inputLine[i] == compare[compareCount]) {
+          compareCount++;
+        } else {
+          compareCount = 0;
+        }
+      } else {
+        isVisited = !isVisited;
+        compareCount = 0;
+      }
+    }
+    if (isVisited) {
+      i++;
+    }
+    loop++;
+  }
+  if (compareCount == compare.length) return true;
   return false;
 }
 
@@ -97,84 +186,20 @@ function matchPattern(inputLine: string, pattern: string): boolean {
     }
     return true;
   } else if (pattern.length > 1) {
-    let compare = [];
-    for (let i = 0; i < pattern.length; i++) {
-      if (pattern[i] == "\\") {
-        if (pattern[i + 1] == "d") {
-          compare.push("\\d");
-        } else if (pattern[i + 1] == "w") {
-          compare.push("\\w");
-        }
-        i += 1;
-        continue;
-      } else {
-        compare.push(pattern[i]);
-      }
-    }
-    console.log(compare);
-    let compareCount = 0;
-    let i = 0;
-    let isVisited = true;
-    let isFlag = false;
-    let loop = 0;
-    while (i <= inputLine.length) {
-      isFlag = false;
-      console.log("comparing ", compare[compareCount], "=", inputLine[i]);
+    if (pattern[0] == "(" && pattern[pattern.length - 1] == ")") {
+      pattern = pattern.slice(1, -1);
 
-      if (compareCount == compare.length) {
-        break;
-      }
-      if (compare[compareCount + 1] == "?") {
-        compare.splice(compareCount + 1, 1);
-        isFlag = true;
-      }
-      if (compare[compareCount] == ".") {
-        compareCount++;
-        i++;
-        continue;
-      } else if (compare[compareCount] == "+") {
-        if (inputLine[i - 1] != inputLine[i]) {
-          compareCount++;
-          continue;
-        }
-      } else if (compare[compareCount] == "\\w") {
-        const ascii = inputLine.charCodeAt(i);
-        if (getW(ascii)) {
-          compareCount++;
-        } else {
-          isVisited = !isVisited;
-          compareCount = 0;
-        }
-      } else if (compare[compareCount] == "\\d") {
-        const ascii = inputLine.charCodeAt(i);
-        if (getD(ascii)) {
-          compareCount++;
-        } else {
-          isVisited = !isVisited;
-          compareCount = 0;
-        }
-      } else if (inputLine[i] == compare[compareCount]) {
-        compareCount++;
-      } else {
-        if (isFlag) {
-          compareCount++;
-          if (inputLine[i] == compare[compareCount]) {
-            compareCount++;
-          } else {
-            compareCount = 0;
-          }
-        } else {
-          isVisited = !isVisited;
-          compareCount = 0;
+      for (const item of pattern.split("|")) {
+        let compare = getCompareArr(item);
+        if (match(compare, inputLine)) {
+          return true;
         }
       }
-      if (isVisited) {
-        i++;
-      }
-      loop++;
+      return false;
     }
-    if (compareCount == compare.length) return true;
-    return false;
+    let compare = getCompareArr(pattern);
+
+    return match(compare, inputLine);
   } else {
     throw new Error(`Unhandled pattern: ${pattern}`);
   }
